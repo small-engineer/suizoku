@@ -1,5 +1,6 @@
 import { Button, TextField, Typography, Box } from "@mui/material";
 import { useRouter } from "next/router";
+import FishList from "../components/FishList";
 
 const AddFish = () => {
   const router = useRouter();
@@ -9,17 +10,25 @@ const AddFish = () => {
     const formData = new FormData(event.currentTarget);
     const newFish = {
       src: formData.get("src") as string,
-      distance: Number(formData.get("distance")),
-      duration: Number(formData.get("duration")),
+      angle: Number(formData.get("angle")),
+      speed: Number(formData.get("speed")),
     };
 
-    // 既存のデータを取得して新しいデータを追加
-    const existingFishes = JSON.parse(localStorage.getItem("fishes") || "[]");
-    existingFishes.push(newFish);
-    localStorage.setItem("fishes", JSON.stringify(existingFishes));
+    try {
+      const response = await fetch("/api/addFish", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newFish),
+      });
 
-    // ホームページに戻る
-    router.push("/");
+      if (!response.ok) throw new Error("Network response was not ok");
+      // ホームページに戻る
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to add the fish:", error);
+    }
   };
 
   return (
@@ -36,16 +45,16 @@ const AddFish = () => {
           sx={{ mb: 2 }}
         />
         <TextField
-          name="distance"
-          label="動く距離 (ピクセル)"
+          name="angle"
+          label="動く角度 (度)"
           type="number"
           fullWidth
           required
           sx={{ mb: 2 }}
         />
         <TextField
-          name="duration"
-          label="アニメーションの周期 (秒)"
+          name="speed"
+          label="速度 (秒)"
           type="number"
           fullWidth
           required
@@ -55,6 +64,7 @@ const AddFish = () => {
           魚を追加
         </Button>
       </form>
+      <FishList />
     </Box>
   );
 };

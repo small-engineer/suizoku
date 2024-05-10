@@ -4,23 +4,24 @@ import { keyframes } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
-// 魚のデータ型を定義
 interface Fish {
   src: string;
-  duration: number; // アニメーションの周期（秒）
-  distance: number; // 動く距離（ピクセル）
+  angle: number; // 角度
+  speed: number; // 速度
 }
 
-// アニメーション適用用のスタイルドコンポーネントを生成
-const createAnimatedFish = (duration: number, distance: number) => {
+const createAnimatedFish = (angle: number, speed: number) => {
+  const radians = (angle * Math.PI) / 180;
+  const translateX = 1000 * Math.cos(radians); // 画面幅に合わせて調整可能
+  const translateY = 1000 * Math.sin(radians); // 画面の高さに合わせて調整可能
+
   const swimAnimation = keyframes`
-    0% { transform: translateX(0px); }
-    50% { transform: translateX(${distance}px); }
-    100% { transform: translateX(0px); }
+    from { transform: translate(0px, 0px); }
+    to { transform: translate(${translateX}px, ${translateY}px); }
   `;
 
   return styled(Image)`
-    animation: ${swimAnimation} ${duration}s infinite;
+    animation: ${swimAnimation} ${speed}s linear infinite;
   `;
 };
 
@@ -43,10 +44,11 @@ const FishAnimation = () => {
         height: "100vh",
         backgroundColor: theme.palette.primary.main,
         position: "relative",
+        overflow: "hidden", // 画面外の要素は非表示にする
       }}
     >
       {fishes.map((fish, index) => {
-        const AnimatedFish = createAnimatedFish(fish.duration, fish.distance);
+        const AnimatedFish = createAnimatedFish(fish.angle, fish.speed);
         return (
           <AnimatedFish
             key={index}
@@ -57,7 +59,9 @@ const FishAnimation = () => {
             layout="fixed"
             style={{
               position: "absolute",
-              top: `${10 + index * 15}%`, // 各魚が重ならないように位置を調整
+              left: "0%",
+              top: "0%",
+              transform: "translate(-50%, -50%)", // 中心からのアニメーションを確実にする
             }}
           />
         );
