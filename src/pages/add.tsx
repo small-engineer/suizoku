@@ -1,67 +1,62 @@
-import { Box, useTheme } from "@mui/material";
-import Image from "next/image";
-import { keyframes } from "@emotion/react";
-import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { Button, TextField, Typography, Box } from "@mui/material";
+import { useRouter } from "next/router";
 
-// 魚のデータ型を定義
-interface Fish {
-  src: string;
-  duration: number; // アニメーションの周期（秒）
-  distance: number; // 動く距離（ピクセル）
-}
+const AddFish = () => {
+  const router = useRouter();
 
-// 魚のリスト
-const fishList: Fish[] = [
-  { src: "/fish.png", duration: 5, distance: 300 },
-  { src: "/fish2.png", duration: 8, distance: 200 },
-  { src: "/fish3.png", duration: 3, distance: 400 },
-];
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newFish = {
+      src: formData.get("src") as string,
+      distance: Number(formData.get("distance")),
+      duration: Number(formData.get("duration")),
+    };
 
-// アニメーション適用用のスタイルドコンポーネントを生成
-const createAnimatedFish = (duration: number, distance: number) => {
-  const swimAnimation = keyframes`
-    0% { transform: translateX(0px); }
-    50% { transform: translateX(${distance}px); }
-    100% { transform: translateX(0px); }
-  `;
+    // 既存のデータを取得して新しいデータを追加
+    const existingFishes = JSON.parse(localStorage.getItem("fishes") || "[]");
+    existingFishes.push(newFish);
+    localStorage.setItem("fishes", JSON.stringify(existingFishes));
 
-  return styled(Image)`
-    animation: ${swimAnimation} ${duration}s infinite;
-  `;
-};
-
-const FishAnimation = () => {
-  const theme = useTheme();
+    // ホームページに戻る
+    router.push("/");
+  };
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100vh",
-        backgroundColor: theme.palette.primary.main,
-        position: "relative",
-      }}
-    >
-      {fishList.map((fish, index) => {
-        const AnimatedFish = createAnimatedFish(fish.duration, fish.distance);
-        return (
-          <AnimatedFish
-            key={index}
-            src={fish.src}
-            alt={`Fish ${index + 1}`}
-            width={100}
-            height={100}
-            layout="fixed"
-            style={{
-              position: "absolute",
-              top: `${10 + index * 15}%`, // 重ならないように位置調整
-            }}
-          />
-        );
-      })}
+    <Box sx={{ maxWidth: 500, mx: "auto", p: 4 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        新しい魚を追加
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          name="src"
+          label="画像URL"
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          name="distance"
+          label="動く距離 (ピクセル)"
+          type="number"
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          name="duration"
+          label="アニメーションの周期 (秒)"
+          type="number"
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <Button type="submit" variant="contained" fullWidth>
+          魚を追加
+        </Button>
+      </form>
     </Box>
   );
 };
 
-export default FishAnimation;
+export default AddFish;
