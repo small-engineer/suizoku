@@ -19,6 +19,8 @@ interface Fish {
   speed: number;
 }
 
+export const runtime = "edge";
+
 const FishList = () => {
   const [fishes, setFishes] = useState<Fish[]>([]);
 
