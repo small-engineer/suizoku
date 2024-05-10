@@ -25,8 +25,6 @@ const createAnimatedFish = (angle: number, speed: number) => {
   `;
 };
 
-export const runtime = "edge";
-
 const FishAnimation = () => {
   const theme = useTheme();
   const [fishes, setFishes] = useState<Fish[]>([]);
